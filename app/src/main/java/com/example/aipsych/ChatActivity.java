@@ -1,45 +1,66 @@
 package com.example.aipsych;
 
-import android.content.Intent;
-import android.os.Build;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import java.util.Date;
 
 import com.android.volley.toolbox.Volley;
-import com.google.firebase.database.*;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.LocalDate;import com.example.aipsych.Controller;
+import java.util.Date;
+import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity {
 
     private DatabaseReference myDatabase;
+    private Controller controller;
+    private StringBuilder bodyText;
+    private String uuid;
+    private String user;
+    private TextView myText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        controller = new Controller();
+        bodyText = new StringBuilder();
         setContentView(R.layout.activity_chat);
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        uuid = prefs.getString("UUID", null);
+        user = prefs.getString("USER", "You");
+        if(uuid == null){
+            uuid = UUID.randomUUID().toString();
+            prefs.edit().putString("UUID", uuid).apply();
+        }
+        Log.d("UUID", uuid);
 
-        myDatabase = FirebaseDatabase.getInstance().getReference("Message");
-
-
-        final TextView  myText = findViewById(R.id.textbox);
-        myDatabase.addValueEventListener(new ValueEventListener() {
+        myDatabase = FirebaseDatabase.getInstance().getReference();
+        myText = findViewById(R.id.textbox);
+        myText.setMovementMethod(new ScrollingMovementMethod());
+        myDatabase.child(uuid).child("messages").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-            myText.setText(dataSnapshot.getValue().toString());
-
+                if(dataSnapshot.exists()) {
+                    Log.d("CONSOLE", dataSnapshot.getValue().toString());
+                    String currentDatabaseText = dataSnapshot.getValue().toString();
+                    myText.setText(currentDatabaseText);
+                    if(bodyText.toString().equals("")){
+                        bodyText.append(currentDatabaseText);
+                    }
+                }
             }
 
             @Override
@@ -49,14 +70,33 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+
+        myText.setText("YAYAYAYAYA COME COME COME");
     }
 
-    public void sendMessage(View view){
+    public void sendMessage(View view) throws JSONException {
 
-        EditText myEditText = findViewById(R.id.editText);
-
-        myDatabase.setValue(myEditText.getText().toString());
-        myEditText.setText("");
+        final EditText myEditText = findViewById(R.id.editText);
+        String userMessage = myEditText.getText().toString();
+        bodyText.append(user + ": " + userMessage + "\n");
+        try {
+            Volley.newRequestQueue(getApplicationContext()).add(controller.getMessage(userMessage, new VolleyCallback() {
+                @Override
+                public void onSuccess(String result){
+                    try {
+                        JSONObject json = new JSONObject(result);
+                        String botMessage = json.getJSONObject("result").getJSONObject("fulfillment").getString("speech");
+                        bodyText.append("Bot: " + botMessage + "\n");
+                        myDatabase.child(uuid).child("messages").setValue(bodyText.toString());
+                        myEditText.setText("");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
     }
 
