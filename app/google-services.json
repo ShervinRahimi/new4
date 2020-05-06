@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "439020028268",
+    "firebase_url": "https://aipsych.firebaseio.com",
+    "project_id": "aipsych",
+    "storage_bucket": "aipsych.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:439020028268:android:bd479e6e1a99e55af6f349",
+        "android_client_info": {
+          "package_name": "com.example.aipsych"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "439020028268-roh316qek488r5r7n3d0bcpmls5dr6u5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.aipsych",
+            "certificate_hash": "91b566f5abc5a37ee5553bed227f874f4b584d9b"
+          }
+        },
+        {
+          "client_id": "439020028268-ln4fq19kuhvt6q41a1lpfi5n9cac9lra.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa-zahck28wC6bQNZ1C20jdMi_iuGKkgs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "439020028268-ln4fq19kuhvt6q41a1lpfi5n9cac9lra.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
